@@ -2,6 +2,9 @@
 
 This project is a backend service that allows users to upload CSV files containing movie-related data and then review the uploaded content. The system is built with Flask (wrapped as an ASGI app via Uvicorn) for the web API and uses Celery to offload heavy CSV processing tasks to background workers. MongoDB is used to store movie, task, and user data. Authentication is handled with JWT, and sensitive configuration is managed via environment variables.
 
+## Postman Collection
+Link to the Postman collection: [Marrow Assignment API](https://documenter.getpostman.com/view/33491654/2sAYX3rip3)
+
 ## Overview
 
 1. **User Registration & Login:**
