@@ -12,3 +12,4 @@ class Config:
     CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
     CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
     DEBUG = bool(os.getenv("DEBUG", False))
+    JWT_ACCESS_TOKEN_EXPIRY_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRY_MINUTES", 15))
