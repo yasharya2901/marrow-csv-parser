@@ -13,3 +13,4 @@ class Config:
     CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND")
     DEBUG = bool(os.getenv("DEBUG", False))
     JWT_ACCESS_TOKEN_EXPIRY_MINUTES = int(os.getenv("JWT_ACCESS_TOKEN_EXPIRY_MINUTES", 15))
+    UPLOAD_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")

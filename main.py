@@ -4,6 +4,7 @@ from app.db import init_db
 from app.routes.auth_routes import auth_routes
 from app.routes.task_routes import task_routes
 from app.routes.file_routes import file_routes
+from app.routes.movie_routes import movie_routes
 from config import Config
 from app.utils.error_handler import register_error_handlers
 
@@ -16,6 +17,7 @@ def create_app():
     app.register_blueprint(auth_routes, url_prefix="/auth")
     app.register_blueprint(task_routes, url_prefix="/tasks")
     app.register_blueprint(file_routes, url_prefix="/files")
+    app.register_blueprint(movie_routes, url_prefix="/movies")
     
     register_error_handlers(app)
     

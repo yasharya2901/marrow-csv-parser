@@ -39,4 +39,4 @@ class TaskModel(BaseModel):
     @classmethod
     def get_task_by_user(cls, user):
         """Fetches all tasks for a user."""
-        return cls.find({"user": user})
+        return cls.find_all({"user": user})

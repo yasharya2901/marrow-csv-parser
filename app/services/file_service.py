@@ -1,7 +1,7 @@
 import os
-import aiofiles
 from app.models.task_model import TaskModel
 import logging
+from config import Config
 
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
@@ -12,7 +12,7 @@ class FileService:
     @staticmethod
     def save_file(file, filename):
         """
-        Saves an uploaded file asynchronously.
+        Saves an uploaded file to server.
         :param file: File object
         :param filename: Name of the file to be saved
         :return: File path
@@ -34,6 +34,8 @@ class FileService:
         :param file_path: Path to the file
         """
         try:
+            upload_dir = Config.UPLOAD_DIR
+            file_path = os.path.join(upload_dir, file_path.split("/")[-1])
             if os.path.exists(file_path):
                 os.remove(file_path)
                 logging.info(f"File {file_path} deleted successfully.")

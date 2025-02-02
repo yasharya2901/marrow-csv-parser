@@ -5,7 +5,7 @@ from app.utils.error_handler import APIError, error_response
 
 task_routes = Blueprint("task_routes", __name__)
 
-@task_routes.route("/task/<task_id>", methods=["GET"])
+@task_routes.route("/<task_id>", methods=["GET"])
 @jwt_required()
 def get_task_status(task_id):
     """Fetches task status for a user."""
@@ -24,13 +24,15 @@ def get_task_status(task_id):
     except APIError as e:
         return error_response(e.message, e.status_code)
     
-@task_routes.route("/tasks", methods=["GET"])
+@task_routes.route("/", methods=["GET"])
 @jwt_required()
 def get_user_tasks():
     """Fetches all tasks for a user."""
     try:
         user = get_jwt_identity()
         tasks = TaskModel.get_task_by_user(user)
+        for task in tasks:
+            task["_id"] = str(task["_id"])
         return jsonify(tasks)
     except APIError as e:
         return error_response(e.message, e.status_code)
