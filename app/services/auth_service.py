@@ -29,5 +29,6 @@ def login_user(username, password):
     if not bcrypt.checkpw(password.encode('utf-8'), user["password"].encode('utf-8')):
         return {"error": "Invalid credentials"}, 401
 
-    access_token = create_access_token(identity=username)
+    access_token = create_access_token(identity=username, expires_delta=datetime.timedelta(minutes=Config.JWT_ACCESS_TOKEN_EXPIRY_MINUTES))
+
     return {"message":"User logged in successfully", "access_token": access_token}, 200
