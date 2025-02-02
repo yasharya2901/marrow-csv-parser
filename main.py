@@ -7,6 +7,8 @@ from app.routes.file_routes import file_routes
 from app.routes.movie_routes import movie_routes
 from config import Config
 from app.utils.error_handler import register_error_handlers
+from asgiref.wsgi import WsgiToAsgi
+import uvicorn
 
 def create_app():
     app = Flask(__name__)
@@ -32,5 +34,7 @@ mongo_client, db = init_db()
 app.mongo_client = mongo_client
 app.db = db
 
+asgi_app = WsgiToAsgi(app)
+
 if __name__ == "__main__":
-    app.run(host=Config.HOST, port=Config.PORT, debug=Config.DEBUG)
+    uvicorn.run(asgi_app, host=Config.HOST, port=Config.PORT, log_level="debug")
