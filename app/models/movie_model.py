@@ -3,23 +3,24 @@ from datetime import datetime
 from pydantic import BaseModel as PydanticModel, Field
 from typing import List, Optional
 
+
 class MovieSchema(PydanticModel):
     """Schema for validating movie data before insertion."""
-    budget: Optional[int] = Field(None, ge=0, description="Movie budget in USD")
+    budget: Optional[float] = Field(None, ge=0, description="Movie budget in USD")
     homepage: Optional[str] = Field(None, description="Official website URL")
     original_language: str = Field(..., description="Original language of the movie")
     original_title: str = Field(..., description="Original title")
     overview: Optional[str] = Field(None, description="Brief description")
     release_date: datetime = Field(..., description="Release date in YYYY-MM-DD format")
-    revenue: Optional[int] = Field(None, ge=0, description="Revenue in USD")
+    revenue: Optional[float] = Field(None, ge=0, description="Revenue in USD")
     runtime: Optional[int] = Field(None, ge=0, description="Movie duration in minutes")
     status: str = Field(..., description="Production status (e.g., Released, Upcoming)")
     title: str = Field(..., description="Movie title")
     vote_average: Optional[float] = Field(0.0, ge=0, le=10, description="Average user rating")
-    vote_count: Optional[int] = Field(0, ge=0, description="Total number of votes")
-    production_company_id: Optional[List[int]] = Field(None, description="List of production company IDs")
-    genre_id: Optional[List[int]] = Field(None, description="List of genre IDs")
-    languages: Optional[List[str]] = Field(None, description="List of available languages")
+    vote_count: Optional[float] = Field(0, ge=0, description="Total number of votes")
+    production_company_id: Optional[int] = Field(None, description="ID of the production company")
+    genre_id: Optional[int] = Field(None, description="ID of the genre")
+    languages: Optional[str] = Field(None, description="List of languages spoken in the movie")
 
     class Config:
         from_attributes = True
