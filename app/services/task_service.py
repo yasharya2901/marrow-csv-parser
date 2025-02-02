@@ -1,6 +1,5 @@
 import pandas as pd
 import logging
-import asyncio
 from app.models.task_model import TaskModel
 from app.models.movie_model import MovieModel
 from app.services.file_service import FileService

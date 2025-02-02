@@ -1,5 +1,4 @@
-from app.celery_app import celery_app
-import asyncio
+from app.celery_instance import celery_app
 import logging
 from app.services.task_service import process_csv
 
