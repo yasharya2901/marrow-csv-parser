@@ -28,24 +28,24 @@ class MovieModel(BaseModel):
     collection_name = "movies"
 
     @classmethod
-    async def insert_movie(cls, movie_data: dict):
+    def insert_movie(cls, movie_data: dict):
         """Validates and inserts a movie record into MongoDB."""
         try:
             movie = MovieSchema(**movie_data)
-            return await cls.insert_one(movie.model_dump())
+            return cls.insert_one(movie.model_dump())
         except Exception as e:
             return {"error": str(e)}
 
     @classmethod
-    async def insert_movies(cls, movies: List[dict]):
+    def insert_movies(cls, movies: List[dict]):
         """Validates and inserts multiple movies into MongoDB."""
         try:
             validated_movies = [MovieSchema(**movie).model_dump() for movie in movies]
-            return await cls.insert_many(validated_movies)
+            return cls.insert_many(validated_movies)
         except Exception as e:
             return {"error": str(e)}
 
     @classmethod
-    async def find_movies(cls, query={}, limit=50):
+    def find_movies(cls, query={}, limit=50):
         """Fetch movies with optional filtering."""
-        return await cls.find_all(query, limit)
+        return cls.find_all(query, limit)

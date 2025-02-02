@@ -2,8 +2,12 @@ flask[async]
 flask-cors
 flask_jwt_extended
 python-dotenv
-motor
+pymongo
 aiofiles
 bcrypt
 pydantic
 pandas
+celery
+starlette
+uvicorn
+redis

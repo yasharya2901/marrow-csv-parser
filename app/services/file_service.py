@@ -10,7 +10,7 @@ class FileService:
     """Handles file operations like saving and deleting uploaded CSV files."""
 
     @staticmethod
-    async def save_file(file, filename):
+    def save_file(file, filename):
         """
         Saves an uploaded file asynchronously.
         :param file: File object
@@ -20,15 +20,15 @@ class FileService:
         file_path = os.path.join(UPLOAD_FOLDER, filename)
 
         try:
-            async with aiofiles.open(file_path, "wb") as f:
-                await f.write(file.read())
+            with open(file_path, "wb") as f:
+                f.write(file.read())
             return file_path
         except Exception as e:
             logging.error(f"Error saving file: {e}")
             return None
 
     @staticmethod
-    async def delete_file(file_path):
+    def delete_file(file_path):
         """
         Deletes a file from the server after processing is completed.
         :param file_path: Path to the file
@@ -43,11 +43,11 @@ class FileService:
             logging.error(f"Error deleting file {file_path}: {e}")
 
     @staticmethod
-    async def cleanup_file_after_processing(task_id):
+    def cleanup_file_after_processing(task_id):
         """
         Deletes the file associated with a task once processing is completed.
         :param task_id: The task ID associated with the file
         """
-        task = await TaskModel.get_task(task_id)
+        task = TaskModel.get_task(task_id)
         if task and task["status"] == "done":
-            await FileService.delete_file(task["file_path"])
+            FileService.delete_file(task["file_path"])
