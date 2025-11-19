@@ -217,7 +217,8 @@
             border-left-color: #17a2b8;
         }
 
-        .task-item.completed {
+        .task-item.completed,
+        .task-item.done {
             border-left-color: #28a745;
         }
 
@@ -258,7 +259,8 @@
             color: #0c5460;
         }
 
-        .status-badge.completed {
+        .status-badge.completed,
+        .status-badge.done {
             background: #d4edda;
             color: #155724;
         }
@@ -878,12 +880,12 @@
                     
                     renderTasksTable();
                     
-                    // Start polling if task is not completed or failed
+                    // Start polling if task is not done or failed
                     if (task.status === 'pending' || task.status === 'processing') {
                         startPolling(taskId);
                     }
                     
-                    if (task.status === 'completed') {
+                    if (task.status === 'done') {
                         showMessage('tasks-message', `Task ${taskId} completed successfully!`, 'success');
                     } else if (task.status === 'failed') {
                         showMessage('tasks-message', `Task ${taskId} failed: ${task.error_message || 'Unknown error'}`, 'error');
@@ -945,12 +947,12 @@
                         
                         renderTasksTable();
                         
-                        // Stop polling if task is completed or failed
-                        if (task.status === 'completed' || task.status === 'failed') {
+                        // Stop polling if task is done or failed
+                        if (task.status === 'done' || task.status === 'failed') {
                             clearInterval(pollingIntervals[taskId]);
                             delete pollingIntervals[taskId];
                             
-                            const message = task.status === 'completed' 
+                            const message = task.status === 'done' 
                                 ? `Task ${taskId} completed successfully!` 
                                 : `Task ${taskId} failed: ${task.error_message || 'Unknown error'}`;
                             showMessage('tasks-message', message, task.status === 'completed' ? 'success' : 'error');
@@ -1008,11 +1010,22 @@
                 const movies = await response.json();
                 
                 if (movies.length === 0) {
-                    moviesList.innerHTML = `
+                    let emptyStateHTML = `
                         <div class="empty-state">
                             <p>No movies found. Try adjusting your filters or upload a CSV file.</p>
                         </div>
                     `;
+                    
+                    // Add back button if on page > 1
+                    if (parseInt(page) > 1) {
+                        emptyStateHTML += `
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button class="btn" onclick="previousPage()">← Previous Page</button>
+                            </div>
+                        `;
+                    }
+                    
+                    moviesList.innerHTML = emptyStateHTML;
                     return;
                 }
                 
@@ -1061,11 +1074,21 @@
                 const paginationInfo = document.createElement('div');
                 paginationInfo.style.marginTop = '20px';
                 paginationInfo.style.textAlign = 'center';
-                paginationInfo.innerHTML = `
-                    <p>Showing page ${page} (${movies.length} movies)</p>
-                    <button class="btn" onclick="previousPage()" ${page <= 1 ? 'disabled' : ''}>← Previous</button>
-                    <button class="btn" onclick="nextPage()" style="margin-left: 10px;">Next →</button>
-                `;
+                
+                let paginationHTML = `<p>Showing page ${page} (${movies.length} movies)</p><div style="margin-top: 10px;">`;
+                
+                // Show previous button only if page > 1
+                if (parseInt(page) > 1) {
+                    paginationHTML += `<button class="btn" onclick="previousPage()">← Previous</button>`;
+                }
+                
+                // Show next button only if we got a full page of results (meaning there might be more)
+                if (movies.length >= parseInt(limit)) {
+                    paginationHTML += `<button class="btn" onclick="nextPage()" style="margin-left: 10px;">Next →</button>`;
+                }
+                
+                paginationHTML += `</div>`;
+                paginationInfo.innerHTML = paginationHTML;
                 moviesList.appendChild(paginationInfo);
                 
             } catch (error) {
