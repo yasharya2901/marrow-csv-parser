@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+  web:
+    image: ghcr.io/yasharya2901/marrow-csv-parser-web:latest
+    command: uvicorn main:asgi_app --host 0.0.0.0 --port 8000 --log-level debug
+    ports:
+      - "8000:8000"
+    volumes:
+      - shared-uploads:/app/uploads
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - DEBUG=True
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - MONGO_URI=mongodb://mongo:27017/
+      - DB_NAME=${DB_NAME:-movies_db}
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - JWT_ACCESS_TOKEN_EXPIRY_MINUTES=${JWT_ACCESS_TOKEN_EXPIRY_MINUTES:-30}
+    depends_on:
+      - mongo
+      - redis
+
+  worker:
+    image: ghcr.io/yasharya2901/marrow-csv-parser-worker:latest
+    command: celery -A app.celery_app worker --loglevel=info
+    volumes:
+      - shared-uploads:/app/uploads
+    environment:
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - MONGO_URI=mongodb://mongo:27017/
+      - DB_NAME=${DB_NAME:-movies_db}
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - mongo
+      - redis
+
+  mongo:
+    image: mongo:5
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+
+volumes:
+  shared-uploads:
+  mongo-data:
