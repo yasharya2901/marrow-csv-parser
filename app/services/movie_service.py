@@ -27,6 +27,9 @@ def get_movies(page=1, limit=50, year=None, language=None, sort_field=None, sort
         except ValueError:
             pass
 
+    if language:
+        query["original_language"] = language
+
     skip = (page - 1) * limit
 
     sort = None
