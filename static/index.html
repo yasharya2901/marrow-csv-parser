@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Parser - Movie Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            background: #f5f5f5;
+            border: none;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: #e0e0e0;
+        }
+
+        .tab.active {
+            background: white;
+            border-bottom: 3px solid #667eea;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .user-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .user-info strong {
+            color: #667eea;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            margin-left: 10px;
+        }
+
+        .task-list {
+            margin-top: 20px;
+        }
+
+        .task-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .task-table th,
+        .task-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .task-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .task-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .task-table .task-id {
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .task-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .task-item.pending {
+            border-left-color: #ffc107;
+        }
+
+        .task-item.processing {
+            border-left-color: #17a2b8;
+        }
+
+        .task-item.completed {
+            border-left-color: #28a745;
+        }
+
+        .task-item.failed {
+            border-left-color: #dc3545;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .task-id {
+            font-family: monospace;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-badge.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.processing {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-badge.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .task-details {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            border: 2px dashed #667eea;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #667eea;
+        }
+
+        .file-input-label:hover {
+            background: #f8f9fa;
+            border-color: #764ba2;
+        }
+
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Movie CSV Parser</h1>
+            <p>Upload and process movie data with ease</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('auth')">🔐 Login / Register</button>
+            <button class="tab hidden" id="upload-tab" onclick="switchTab('upload')">📤 Upload CSV</button>
+            <button class="tab hidden" id="tasks-tab" onclick="switchTab('tasks')">📋 Tasks</button>
+            <button class="tab hidden" id="movies-tab" onclick="switchTab('movies')">🎬 Movies</button>
+        </div>
+
+        <div class="content">
+            <!-- Auth Section -->
+            <div id="auth-section" class="section active">
+                <div id="auth-message" class="message"></div>
+                
+                <div id="login-form">
+                    <h2>Login</h2>
+                    <form onsubmit="login(event)">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="login-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="login-password" required>
+                        </div>
+                        <button type="submit" class="btn">Login</button>
+                        <button type="button" class="btn" onclick="toggleAuthForm()" style="background: #6c757d; margin-left: 10px;">Switch to Register</button>
+                    </form>
+                </div>
+
+                <div id="register-form" class="hidden">
+                    <h2>Register</h2>
+                    <form onsubmit="register(event)">
+                        <div class="form-group">
+                            <label>Name</label>
+                            <input type="text" id="register-name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="register-email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="register-username" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="register-password" required minlength="6">
+                        </div>
+                        <button type="submit" class="btn">Register</button>
+                        <button type="button" class="btn" onclick="toggleAuthForm()" style="background: #6c757d; margin-left: 10px;">Switch to Login</button>
+                    </form>
+                </div>
+
+                <div id="logged-in-view" class="hidden">
+                    <div class="user-info">
+                        <strong>Logged in as:</strong> <span id="current-user"></span>
+                        <button class="btn logout-btn" onclick="logout()">Logout</button>
+                    </div>
+                    <p>You can now upload CSV files and view your tasks!</p>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div id="upload-section" class="section">
+                <div id="upload-message" class="message"></div>
+                
+                <div id="upload-form-container">
+                    <h2>Upload CSV File</h2>
+                    <form onsubmit="uploadFile(event)">
+                        <div class="form-group">
+                            <label>Select CSV File</label>
+                            <div class="file-input-wrapper">
+                                <input type="file" id="csv-file" accept=".csv" onchange="updateFileName()" required>
+                                <label for="csv-file" class="file-input-label">
+                                    📁 Click to select CSV file
+                                </label>
+                            </div>
+                            <div id="file-name" class="file-name"></div>
+                        </div>
+                        <button type="submit" class="btn" id="upload-btn">Upload</button>
+                    </form>
+                </div>
+
+                <div id="upload-auth-required" class="hidden">
+                    <div class="empty-state">
+                        <p>🔒 Please login to upload files</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Section -->
+            <div id="tasks-section" class="section">
+                <div id="tasks-message" class="message"></div>
+                
+                <div id="tasks-container">
+                    <h2>Your Tasks</h2>
+                    <button class="btn" onclick="refreshAllTasks()">🔄 Refresh All Tasks</button>
+                    <div id="task-list" class="task-list"></div>
+                </div>
+
+                <div id="tasks-auth-required" class="hidden">
+                    <div class="empty-state">
+                        <p>🔒 Please login to view tasks</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Movies Section -->
+            <div id="movies-section" class="section">
+                <div id="movies-message" class="message"></div>
+                
+                <div id="movies-container">
+                    <h2>Movies Database</h2>
+                    
+                    <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <input type="number" id="filter-year" placeholder="Filter by Year" style="padding: 8px; border: 2px solid #ddd; border-radius: 6px;">
+                        <input type="text" id="filter-language" placeholder="Filter by Language (e.g., en)" style="padding: 8px; border: 2px solid #ddd; border-radius: 6px;">
+                        <select id="sort-field" style="padding: 8px; border: 2px solid #ddd; border-radius: 6px;">
+                            <option value="">Sort By</option>
+                            <option value="release_date">Release Date</option>
+                            <option value="rating">Rating</option>
+                            <option value="title">Title</option>
+                        </select>
+                        <select id="sort-order" style="padding: 8px; border: 2px solid #ddd; border-radius: 6px;">
+                            <option value="asc">Ascending</option>
+                            <option value="desc">Descending</option>
+                        </select>
+                        <button class="btn" onclick="loadMovies()">🔍 Search</button>
+                        <button class="btn" onclick="resetMovieFilters()" style="background: #6c757d;">Clear Filters</button>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label>Page: </label>
+                        <input type="number" id="movie-page" value="1" min="1" style="width: 80px; padding: 8px; border: 2px solid #ddd; border-radius: 6px;">
+                        <label style="margin-left: 15px;">Per Page: </label>
+                        <select id="movie-limit" style="padding: 8px; border: 2px solid #ddd; border-radius: 6px;">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50" selected>50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <button class="btn" onclick="loadMovies()" style="margin-left: 10px;">Go</button>
+                    </div>
+                    
+                    <div id="movies-list"></div>
+                </div>
+
+                <div id="movies-auth-required" class="hidden">
+                    <div class="empty-state">
+                        <p>🔒 Please login to view movies</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        let authToken = localStorage.getItem('authToken');
+        let currentUser = localStorage.getItem('currentUser');
+        let pollingIntervals = {};
+        let userTasks = JSON.parse(localStorage.getItem('userTasks') || '[]');
+
+        // Initialize on page load
+        window.onload = function() {
+            if (authToken) {
+                updateAuthState(true);
+            }
+        };
+
+        function switchTab(tab) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            if (event && event.target) {
+                event.target.classList.add('active');
+            } else {
+                // If called programmatically, find the tab button
+                const tabButton = document.querySelector(`[onclick="switchTab('${tab}')"]`);
+                if (tabButton) tabButton.classList.add('active');
+            }
+            
+            document.getElementById(`${tab}-section`).classList.add('active');
+            
+            // Clear messages
+            clearMessages();
+            
+            // Load tasks if switching to tasks tab
+            if (tab === 'tasks' && authToken) {
+                loadTasks();
+            }
+            
+            // Load movies if switching to movies tab
+            if (tab === 'movies' && authToken) {
+                loadMovies();
+            }
+        }
+
+        function toggleAuthForm() {
+            document.getElementById('login-form').classList.toggle('hidden');
+            document.getElementById('register-form').classList.toggle('hidden');
+            clearMessage('auth-message');
+        }
+
+        function updateAuthState(isLoggedIn) {
+            if (isLoggedIn) {
+                // Show logged-in view
+                document.getElementById('login-form').classList.add('hidden');
+                document.getElementById('register-form').classList.add('hidden');
+                document.getElementById('logged-in-view').classList.remove('hidden');
+                document.getElementById('current-user').textContent = currentUser;
+                
+                // Show tabs
+                document.getElementById('upload-tab').classList.remove('hidden');
+                document.getElementById('tasks-tab').classList.remove('hidden');
+                document.getElementById('movies-tab').classList.remove('hidden');
+                
+                // Show authenticated sections
+                document.getElementById('upload-form-container').classList.remove('hidden');
+                document.getElementById('upload-auth-required').classList.add('hidden');
+                
+                document.getElementById('tasks-container').classList.remove('hidden');
+                document.getElementById('tasks-auth-required').classList.add('hidden');
+
+                document.getElementById('movies-container').classList.remove('hidden');
+                document.getElementById('movies-auth-required').classList.add('hidden');
+            } else {
+                // Hide logged-in view
+                document.getElementById('login-form').classList.remove('hidden');
+                document.getElementById('logged-in-view').classList.add('hidden');
+                
+                // Hide tabs
+                document.getElementById('upload-tab').classList.add('hidden');
+                document.getElementById('tasks-tab').classList.add('hidden');
+                document.getElementById('movies-tab').classList.add('hidden');
+                
+                // Hide authenticated sections
+                document.getElementById('upload-form-container').classList.add('hidden');
+                document.getElementById('upload-auth-required').classList.remove('hidden');
+                
+                document.getElementById('tasks-container').classList.add('hidden');
+                document.getElementById('tasks-auth-required').classList.remove('hidden');
+
+                document.getElementById('movies-container').classList.add('hidden');
+                document.getElementById('movies-auth-required').classList.remove('hidden');
+                
+                // Switch back to auth tab
+                switchTab('auth');
+            }
+        }
+
+        async function register(event) {
+            event.preventDefault();
+            
+            const data = {
+                name: document.getElementById('register-name').value,
+                email: document.getElementById('register-email').value,
+                username: document.getElementById('register-username').value,
+                password: document.getElementById('register-password').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // Check if access_token is returned
+                    if (result.access_token) {
+                        authToken = result.access_token;
+                        currentUser = data.username;
+                        localStorage.setItem('authToken', authToken);
+                        localStorage.setItem('currentUser', currentUser);
+                        
+                        showMessage('auth-message', 'Registration successful! You are now logged in.', 'success');
+                        updateAuthState(true);
+                        event.target.reset();
+                    } else {
+                        showMessage('auth-message', 'Registration successful! Please login.', 'success');
+                        toggleAuthForm();
+                        event.target.reset();
+                    }
+                } else {
+                    showMessage('auth-message', result.error || result.message || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                showMessage('auth-message', 'Network error: ' + error.message, 'error');
+            }
+        }
+
+        async function login(event) {
+            event.preventDefault();
+            
+            const data = {
+                username: document.getElementById('login-username').value,
+                password: document.getElementById('login-password').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    authToken = result.access_token;
+                    currentUser = data.username;
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('currentUser', currentUser);
+                    
+                    showMessage('auth-message', 'Login successful!', 'success');
+                    updateAuthState(true);
+                    event.target.reset();
+                } else {
+                    showMessage('auth-message', result.error || result.message || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showMessage('auth-message', 'Network error: ' + error.message, 'error');
+            }
+        }
+
+        function logout() {
+            authToken = null;
+            currentUser = null;
+            userTasks = [];
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('userTasks');
+            updateAuthState(false);
+            showMessage('auth-message', 'Logged out successfully', 'info');
+            
+            // Stop all polling
+            Object.values(pollingIntervals).forEach(interval => clearInterval(interval));
+            pollingIntervals = {};
+        }
+
+        function updateFileName() {
+            const fileInput = document.getElementById('csv-file');
+            const fileName = document.getElementById('file-name');
+            
+            if (fileInput.files.length > 0) {
+                fileName.textContent = `Selected: ${fileInput.files[0].name}`;
+            } else {
+                fileName.textContent = '';
+            }
+        }
+
+        async function uploadFile(event) {
+            event.preventDefault();
+            
+            if (!authToken) {
+                showMessage('upload-message', 'Please login first', 'error');
+                return;
+            }
+            
+            const fileInput = document.getElementById('csv-file');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showMessage('upload-message', 'Please select a file', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            const uploadBtn = document.getElementById('upload-btn');
+            uploadBtn.disabled = true;
+            uploadBtn.innerHTML = 'Uploading... <span class="spinner"></span>';
+            
+            try {
+                const response = await fetch(`${API_BASE}/files/upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showMessage('upload-message', `File uploaded successfully! Task ID: ${result.task_id}`, 'success');
+                    fileInput.value = '';
+                    document.getElementById('file-name').textContent = '';
+                    
+                    // Add task to list
+                    const newTask = {
+                        task_id: result.task_id,
+                        file_path: file.name,
+                        status: 'pending',
+                        created_at: new Date().toISOString()
+                    };
+                    userTasks.unshift(newTask);
+                    localStorage.setItem('userTasks', JSON.stringify(userTasks));
+                    
+                    // Switch to tasks tab and refresh
+                    setTimeout(() => {
+                        document.getElementById('tasks-tab').click();
+                        renderTasksTable();
+                        startPolling(result.task_id);
+                    }, 1000);
+                } else {
+                    showMessage('upload-message', result.error || result.message || 'Upload failed', 'error');
+                }
+            } catch (error) {
+                showMessage('upload-message', 'Network error: ' + error.message, 'error');
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.innerHTML = 'Upload';
+            }
+        }
+
+        async function loadTasks() {
+            if (!authToken) {
+                showMessage('tasks-message', 'Please login first', 'error');
+                return;
+            }
+            
+            renderTasksTable();
+        }
+
+        function renderTasksTable() {
+            const taskList = document.getElementById('task-list');
+            
+            if (userTasks.length === 0) {
+                taskList.innerHTML = `
+                    <div class="empty-state">
+                        <p>No tasks yet. Upload a CSV file to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let tableHtml = `
+                <table class="task-table">
+                    <thead>
+                        <tr>
+                            <th>Task ID</th>
+                            <th>File</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            userTasks.forEach(task => {
+                const statusClass = (task.status || 'pending').toLowerCase();
+                tableHtml += `
+                    <tr id="task-row-${task.task_id}">
+                        <td class="task-id">${task.task_id}</td>
+                        <td>${task.file_path || 'N/A'}</td>
+                        <td><span class="status-badge ${statusClass}">${task.status || 'pending'}</span></td>
+                        <td>${new Date(task.created_at).toLocaleString()}</td>
+                        <td>
+                            <button class="btn" onclick="refreshTaskStatus('${task.task_id}')" style="padding: 6px 12px; font-size: 12px;">
+                                🔄 Refresh
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tableHtml += `
+                    </tbody>
+                </table>
+            `;
+            
+            taskList.innerHTML = tableHtml;
+        }
+
+        async function refreshTaskStatus(taskId) {
+            if (!authToken) {
+                showMessage('tasks-message', 'Please login first', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/tasks/${taskId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const task = await response.json();
+                
+                if (response.ok) {
+                    // Update task in userTasks array
+                    const taskIndex = userTasks.findIndex(t => t.task_id === taskId);
+                    if (taskIndex !== -1) {
+                        userTasks[taskIndex] = {
+                            ...userTasks[taskIndex],
+                            status: task.status,
+                            completed_at: task.completed_at,
+                            error_message: task.error_message,
+                            records_processed: task.records_processed
+                        };
+                        localStorage.setItem('userTasks', JSON.stringify(userTasks));
+                    }
+                    
+                    renderTasksTable();
+                    
+                    // Start polling if task is not completed or failed
+                    if (task.status === 'pending' || task.status === 'processing') {
+                        startPolling(taskId);
+                    }
+                    
+                    if (task.status === 'completed') {
+                        showMessage('tasks-message', `Task ${taskId} completed successfully!`, 'success');
+                    } else if (task.status === 'failed') {
+                        showMessage('tasks-message', `Task ${taskId} failed: ${task.error_message || 'Unknown error'}`, 'error');
+                    }
+                } else {
+                    showMessage('tasks-message', task.error || task.message || 'Task not found', 'error');
+                }
+            } catch (error) {
+                showMessage('tasks-message', 'Error checking task: ' + error.message, 'error');
+            }
+        }
+
+        async function refreshAllTasks() {
+            if (!authToken) {
+                showMessage('tasks-message', 'Please login first', 'error');
+                return;
+            }
+            
+            if (userTasks.length === 0) {
+                showMessage('tasks-message', 'No tasks to refresh', 'info');
+                return;
+            }
+            
+            for (const task of userTasks) {
+                await refreshTaskStatus(task.task_id);
+            }
+        }
+
+        function startPolling(taskId) {
+            // Clear existing polling for this task
+            if (pollingIntervals[taskId]) {
+                clearInterval(pollingIntervals[taskId]);
+            }
+            
+            // Poll every 3 seconds
+            pollingIntervals[taskId] = setInterval(async () => {
+                try {
+                    const response = await fetch(`${API_BASE}/tasks/${taskId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${authToken}`
+                        }
+                    });
+                    
+                    const task = await response.json();
+                    
+                    if (response.ok) {
+                        // Update task in userTasks array
+                        const taskIndex = userTasks.findIndex(t => t.task_id === taskId);
+                        if (taskIndex !== -1) {
+                            userTasks[taskIndex] = {
+                                ...userTasks[taskIndex],
+                                status: task.status,
+                                completed_at: task.completed_at,
+                                error_message: task.error_message,
+                                records_processed: task.records_processed
+                            };
+                            localStorage.setItem('userTasks', JSON.stringify(userTasks));
+                        }
+                        
+                        renderTasksTable();
+                        
+                        // Stop polling if task is completed or failed
+                        if (task.status === 'completed' || task.status === 'failed') {
+                            clearInterval(pollingIntervals[taskId]);
+                            delete pollingIntervals[taskId];
+                            
+                            const message = task.status === 'completed' 
+                                ? `Task ${taskId} completed successfully!` 
+                                : `Task ${taskId} failed: ${task.error_message || 'Unknown error'}`;
+                            showMessage('tasks-message', message, task.status === 'completed' ? 'success' : 'error');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Polling error:', error);
+                }
+            }, 3000);
+        }
+
+        async function loadMovies() {
+            if (!authToken) {
+                showMessage('movies-message', 'Please login first', 'error');
+                return;
+            }
+            
+            const moviesList = document.getElementById('movies-list');
+            moviesList.innerHTML = '<p>Loading movies...</p>';
+            
+            try {
+                const page = document.getElementById('movie-page').value || 1;
+                const limit = document.getElementById('movie-limit').value || 50;
+                const year = document.getElementById('filter-year').value;
+                const language = document.getElementById('filter-language').value;
+                const sortField = document.getElementById('sort-field').value;
+                const sortOrder = document.getElementById('sort-order').value;
+                
+                let url = `${API_BASE}/movies/?page=${page}&limit=${limit}`;
+                if (year) url += `&year=${year}`;
+                if (language) url += `&language=${language}`;
+                if (sortField) url += `&sort_field=${sortField}&sort_order=${sortOrder}`;
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch movies');
+                }
+                
+                const movies = await response.json();
+                
+                if (movies.length === 0) {
+                    moviesList.innerHTML = `
+                        <div class="empty-state">
+                            <p>No movies found. Try adjusting your filters or upload a CSV file.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                let tableHtml = `
+                    <table class="task-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Original Title</th>
+                                <th>Release Date</th>
+                                <th>Language</th>
+                                <th>Rating</th>
+                                <th>Revenue</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                movies.forEach(movie => {
+                    const releaseDate = movie.release_date ? new Date(movie.release_date).toLocaleDateString() : 'N/A';
+                    const revenue = movie.revenue ? `$${(movie.revenue / 1000000).toFixed(1)}M` : 'N/A';
+                    const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+                    
+                    tableHtml += `
+                        <tr>
+                            <td><strong>${movie.title || 'N/A'}</strong></td>
+                            <td>${movie.original_title || 'N/A'}</td>
+                            <td>${releaseDate}</td>
+                            <td>${movie.original_language || 'N/A'}</td>
+                            <td>${rating} ⭐</td>
+                            <td>${revenue}</td>
+                            <td><span class="status-badge ${movie.status === 'Released' ? 'completed' : 'pending'}">${movie.status || 'N/A'}</span></td>
+                        </tr>
+                    `;
+                });
+                
+                tableHtml += `
+                        </tbody>
+                    </table>
+                `;
+                
+                moviesList.innerHTML = tableHtml;
+                
+                // Add pagination info
+                const paginationInfo = document.createElement('div');
+                paginationInfo.style.marginTop = '20px';
+                paginationInfo.style.textAlign = 'center';
+                paginationInfo.innerHTML = `
+                    <p>Showing page ${page} (${movies.length} movies)</p>
+                    <button class="btn" onclick="previousPage()" ${page <= 1 ? 'disabled' : ''}>← Previous</button>
+                    <button class="btn" onclick="nextPage()" style="margin-left: 10px;">Next →</button>
+                `;
+                moviesList.appendChild(paginationInfo);
+                
+            } catch (error) {
+                showMessage('movies-message', 'Error loading movies: ' + error.message, 'error');
+                moviesList.innerHTML = `
+                    <div class="empty-state">
+                        <p>Error loading movies. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function resetMovieFilters() {
+            document.getElementById('filter-year').value = '';
+            document.getElementById('filter-language').value = '';
+            document.getElementById('sort-field').value = '';
+            document.getElementById('sort-order').value = 'asc';
+            document.getElementById('movie-page').value = 1;
+            document.getElementById('movie-limit').value = 50;
+            loadMovies();
+        }
+
+        function nextPage() {
+            const pageInput = document.getElementById('movie-page');
+            pageInput.value = parseInt(pageInput.value) + 1;
+            loadMovies();
+        }
+
+        function previousPage() {
+            const pageInput = document.getElementById('movie-page');
+            const currentPage = parseInt(pageInput.value);
+            if (currentPage > 1) {
+                pageInput.value = currentPage - 1;
+                loadMovies();
+            }
+        }
+
+        function showMessage(elementId, message, type) {
+            const messageEl = document.getElementById(elementId);
+            messageEl.textContent = message;
+            messageEl.className = `message ${type}`;
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+
+        function clearMessage(elementId) {
+            const messageEl = document.getElementById(elementId);
+            messageEl.style.display = 'none';
+        }
+
+        function clearMessages() {
+            document.querySelectorAll('.message').forEach(msg => {
+                msg.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>

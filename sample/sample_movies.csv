@@ -1,0 +1,11 @@
+budget,homepage,original_language,original_title,overview,release_date,revenue,runtime,status,title,vote_average,vote_count,production_company_id,genre_id,languages
+150000000,https://www.example.com/movie1,en,The Space Odyssey,A thrilling journey through the cosmos as astronauts discover ancient alien artifacts.,2024-03-15,450000000,142,Released,The Space Odyssey,8.2,15000,101,28,English
+85000000,https://www.example.com/movie2,es,La Casa del Tiempo,A mysterious house where time flows differently in each room.,2024-06-22,120000000,118,Released,The House of Time,7.5,8500,102,18,Spanish|English
+45000000,,ja,Tokyo Nights,A romantic drama set in the neon-lit streets of modern Tokyo.,2024-01-10,95000000,105,Released,Tokyo Nights,7.8,12000,103,10,Japanese
+200000000,https://www.example.com/movie4,en,Shadow Protocol,An elite spy must prevent a global cyber attack.,2024-09-05,580000000,135,Released,Shadow Protocol,8.5,22000,104,28,English
+30000000,https://www.example.com/movie5,fr,Les Étoiles Perdues,A poetic exploration of lost dreams and second chances.,2024-05-18,15000000,92,Released,The Lost Stars,6.9,4500,105,18,French
+120000000,,en,Quantum Heist,Thieves use quantum technology to pull off the impossible.,2024-11-20,0,128,Upcoming,Quantum Heist,0,0,106,28,English
+65000000,https://www.example.com/movie7,ko,Seoul Underground,A detective uncovers a hidden world beneath the city.,2024-04-12,78000000,110,Released,Seoul Underground,7.3,9200,107,80,Korean|English
+95000000,https://www.example.com/movie8,en,The Last Frontier,Colonists struggle to survive on a hostile alien planet.,2024-08-30,210000000,156,Released,The Last Frontier,8.1,18500,108,878,English
+25000000,,it,Venezia Segreta,A historian discovers dark secrets in Venice's ancient archives.,2024-02-14,32000000,98,Released,Secret Venice,7.0,6800,109,53,Italian
+180000000,https://www.example.com/movie10,en,Dragon's Legacy,An epic fantasy where kingdoms clash over ancient dragon magic.,2024-12-25,0,165,Upcoming,Dragon's Legacy,0,0,110,14,English

@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, send_from_directory
 from flask_jwt_extended import JWTManager
 from app.db import init_db
 from app.routes.auth_routes import auth_routes
@@ -9,6 +9,7 @@ from config import Config
 from app.utils.error_handler import register_error_handlers
 from asgiref.wsgi import WsgiToAsgi
 import uvicorn
+import os
 
 def create_app():
     app = Flask(__name__)
@@ -25,7 +26,9 @@ def create_app():
     
     @app.route("/")
     def home():
-        return {"message": "Flask Server is Running!"}
+        static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static")
+        return send_from_directory(static_dir, "index.html")
+    
     
     return app
 
