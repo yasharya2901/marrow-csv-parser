@@ -758,7 +758,18 @@
                         startPolling(result.task_id);
                     }, 1000);
                 } else {
-                    showMessage('upload-message', result.error || result.message || 'Upload failed', 'error');
+                    // Check if user is unauthorized or not found
+                    const errorMessage = result.error || result.message || '';
+                    if (response.status === 401 || response.status === 422 || 
+                        errorMessage.toLowerCase().includes('user not found') || 
+                        errorMessage.toLowerCase().includes('unauthorized')) {
+                        showMessage('upload-message', 'Session expired or user not found. Please login again.', 'error');
+                        setTimeout(() => {
+                            logout();
+                        }, 2000);
+                    } else {
+                        showMessage('upload-message', errorMessage || 'Upload failed', 'error');
+                    }
                 }
             } catch (error) {
                 showMessage('upload-message', 'Network error: ' + error.message, 'error');
@@ -842,6 +853,14 @@
                 });
                 
                 const task = await response.json();
+                
+                if (!response.ok && (response.status === 401 || response.status === 422)) {
+                    showMessage('tasks-message', 'Session expired. Please login again.', 'error');
+                    setTimeout(() => {
+                        logout();
+                    }, 2000);
+                    return;
+                }
                 
                 if (response.ok) {
                     // Update task in userTasks array
@@ -972,6 +991,17 @@
                 });
                 
                 if (!response.ok) {
+                    throw new Error('Failed to fetch movies');
+                }
+                
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 422) {
+                        showMessage('movies-message', 'Session expired. Please login again.', 'error');
+                        setTimeout(() => {
+                            logout();
+                        }, 2000);
+                        return;
+                    }
                     throw new Error('Failed to fetch movies');
                 }
                 
