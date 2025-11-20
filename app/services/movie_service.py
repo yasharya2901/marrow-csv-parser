@@ -1,4 +1,5 @@
 from datetime import datetime
+from bson import ObjectId
 from app.models.movie_model import MovieModel
 
 def get_movies(page=1, limit=50, year=None, language=None, sort_field=None, sort_order="asc"):
@@ -59,3 +60,23 @@ def get_movies(page=1, limit=50, year=None, language=None, sort_field=None, sort
             movie["_id"] = str(movie["_id"])
 
     return movies
+
+def get_movie_by_id(movie_id):
+    """
+    Returns a single movie by its MongoDB ObjectId.
+
+    Parameters:
+      - movie_id: the string representation of the MongoDB _id
+
+    Returns:
+      - Movie document or None if not found
+    """
+    try:
+        col = MovieModel.collection()
+        movie = col.find_one({"_id": ObjectId(movie_id)})
+        if movie:
+            movie["_id"] = str(movie["_id"])
+        return movie
+    except Exception as e:
+        print(f"Error fetching movie by ID: {e}")
+        return None

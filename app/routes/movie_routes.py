@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.services.movie_service import get_movies
+from app.services.movie_service import get_movies, get_movie_by_id
 
 movie_routes = Blueprint("movie_routes", __name__)
 
@@ -20,3 +20,11 @@ def list_movies():
     movies = get_movies(page=page, limit=limit, year=year, language=language,
                         sort_field=sort_field, sort_order=sort_order)
     return jsonify(movies)
+
+@movie_routes.route("/<movie_id>", methods=["GET"])
+def get_movie(movie_id):
+    movie = get_movie_by_id(movie_id)
+    if movie:
+        return jsonify(movie)
+    return jsonify({"error": "Movie not found"}), 404
+
